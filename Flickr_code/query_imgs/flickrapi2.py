@@ -225,7 +225,7 @@ class FlickrAPI:
 		if not self.__handlerCache.has_key(method):
 			def handler(_self = self, _method = method, **arg):
 				_method = "flickr." + _method.replace("_", ".")
-				url = "http://" + FlickrAPI.flickrHost + \
+				url = "https://" + FlickrAPI.flickrHost + \
 					FlickrAPI.flickrRESTForm
 				arg["method"] = _method
 				postData = urllib.urlencode(arg) + "&api_sig=" + \
@@ -259,7 +259,7 @@ class FlickrAPI:
 
 		data = {"api_key": self.apiKey, "frob": frob, "perms": perms}
 		data["api_sig"] = self.__sign(data)
-		return "http://%s%s?%s" % (FlickrAPI.flickrHost, \
+		return "https://%s%s?%s" % (FlickrAPI.flickrHost, \
 			FlickrAPI.flickrAuthForm, urllib.urlencode(data))
 
 	#-------------------------------------------------------------------
@@ -303,7 +303,7 @@ class FlickrAPI:
 					"\"%s\" sent to FlickrAPI.upload\n" % (a))
 		
 		arg["api_sig"] = self.__sign(arg)
-		url = "http://" + FlickrAPI.flickrHost + FlickrAPI.flickrUploadForm
+		url = "https://" + FlickrAPI.flickrHost + FlickrAPI.flickrUploadForm
 
 		# construct POST data
 		boundary = mimetools.choose_boundary()

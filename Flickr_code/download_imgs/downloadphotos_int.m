@@ -3,9 +3,9 @@ function downloadphotos_int()
 
 %download images listed in every text file in this directory
 % search_result_dir = '/nfs/hn22/jhhays/flickr_scripts/search_results/'
-search_result_dir = '/nfs/hn26/jhhays/download_scripts/search_results_interesting/'
+search_result_dir = '../query_imgs/flickerData/'
 %directory where you want to download the images
-output_dir = ['/nfs/baikal_scratch1/jhhays/flickr_interesting/'];
+output_dir = ['flickerDownloads/'];
 %the algorithm will create subdirs and subsubdirs in the above dir.
 
 %with the number of images we're expecting we will need two levels of
@@ -125,7 +125,7 @@ for i = 1:size(search_results,1)
             %use the -O [output file name] option
             %-t specifies number of retries
             %-T specifies all timeouts, in seconds.  if it times out does it retry?
-            cmd = ['wget -t 3 -T 5 --quiet ' url ...
+            cmd = ['/usr/local/Cellar/wget/1.16.3/bin/wget -t 3 -T 5 --quiet ' url ...
                    ' -O ' '/tmp/' id '_' secret '_' server '_' owner '.jpg' ];
                
             try
@@ -148,11 +148,11 @@ for i = 1:size(search_results,1)
                    fprintf('X  Large version did not exist, trying original\n');
                    %try for the original
                    url = ['http://static.flickr.com/' server '/' id '_' secret '_o.jpg'];
-                   cmd = ['wget -t 3 -T 5 --quiet ' url ...
+                   cmd = ['/usr/local/Cellar/wget/1.16.3/bin/wget -t 3 -T 5 --quiet ' url ...
                              ' -O ' '/tmp/' id '_' secret '_' server '_' owner '.jpg' ];
                          
                    try
-                       unix(cmd);
+                       system(cmd);
                    catch
                        lasterr
                        fprintf('XX!! Error with wget.\n');
