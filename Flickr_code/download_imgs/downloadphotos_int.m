@@ -3,9 +3,9 @@ function downloadphotos_int()
 
 %download images listed in every text file in this directory
 % search_result_dir = '/nfs/hn22/jhhays/flickr_scripts/search_results/'
-search_result_dir = '../query_imgs/flickerData/'
+search_result_dir = '../query_imgs/flickrData/'
 %directory where you want to download the images
-output_dir = ['flickerDownloads/'];
+output_dir = ['../images/'];
 %the algorithm will create subdirs and subsubdirs in the above dir.
 
 %with the number of images we're expecting we will need two levels of
@@ -45,11 +45,12 @@ for i = 1:size(search_results,1)
 
         count=0;
         dircount=0;
+        max_img_per_query = 5000;
 
         % downloads images, 1000 images per directory
         while 1
           line = fgetl(fid);
-          if (~ischar(line) || count > 2)
+          if (~ischar(line) || count > max_img_per_query)
             break
           end
           
@@ -113,20 +114,22 @@ for i = 1:size(search_results,1)
             
             %first lets try and grab the large size, which should be max
             %dimension = 1024 pixels (but there are bugs).
-            url = ['http://static.flickr.com/' server '/' id '_' secret '_b.jpg'];
+            %url = ['http://static.flickr.com/' server '/' id '_' secret '_b.jpg'];
+            % Actually, lets get the small size image
+            url = ['http://static.flickr.com/' server '/' id '_' secret '_n.jpg'];
             
             fprintf('\n   current_image :  %s\n', [id '_' secret '_' server '_' owner '.jpg'] )
             
             %download the file to a temporary, local location
             %before saving it in the full path in order to minimize network
-            %traffic using the /tmp/ space on any machine.
+            %traffic using the tmp/ space on any machine.
             
             %we want the file name to identify the image still.  not just be numbered.
             %use the -O [output file name] option
             %-t specifies number of retries
             %-T specifies all timeouts, in seconds.  if it times out does it retry?
             cmd = ['/usr/local/Cellar/wget/1.16.3/bin/wget -t 3 -T 5 --quiet ' url ...
-                   ' -O ' '/tmp/' id '_' secret '_' server '_' owner '.jpg' ];
+                   ' -O ' 'tmp/' id '_' secret '_' server '_' owner '.jpg' ];
                
             try
                 unix(cmd);
@@ -137,57 +140,59 @@ for i = 1:size(search_results,1)
 
             %we need to check if we got a small error .gif back, in which case
             %we'll want to try for the original image.
-            current_file_info = dir(['/tmp/' id '_' secret '_' server '_' owner '.jpg']);
+            current_file_info = dir(['tmp/' id '_' secret '_' server '_' owner '.jpg']);
 
             if(isempty(current_file_info))
                 fprintf('XX!! could not find the temporary file from this iteration \n')
             else
-                current_file_size = current_file_info.bytes;    
+                current_file_size = current_file_info.bytes;
                 
-                if(current_file_size < 5000) %if the file is less than 20k, or we got an error .gif instead
-                   fprintf('X  Large version did not exist, trying original\n');
-                   %try for the original
-                   url = ['http://static.flickr.com/' server '/' id '_' secret '_o.jpg'];
-                   cmd = ['/usr/local/Cellar/wget/1.16.3/bin/wget -t 3 -T 5 --quiet ' url ...
-                             ' -O ' '/tmp/' id '_' secret '_' server '_' owner '.jpg' ];
-                         
-                   try
-                       system(cmd);
-                   catch
-                       lasterr
-                       fprintf('XX!! Error with wget.\n');
-                   end
-                    
-                   current_file_info = dir(['/tmp/' id '_' secret '_' server '_' owner '.jpg']);
-                   if(isempty(current_file_info))
-                       fprintf('XX!! could not find the second temporary file from this iteration \n')
-                   else
-                       current_file_size = current_file_info.bytes; 
-                       
-                       if(current_file_size < 5000) %if the file is less than 5k, or we got an error .gif instead
-                           %neither the large nor the original existed
-                           current_file_valid = 0;
-                           fprintf('X  Original version does not exist\n');
-                       else
-                           %the large size did not exist, the original
-                           %size did.  but it could be too small resolution.
-                           %or too large, actually.
-                           current_file_valid = 1;
-                           fprintf('!  Original version exists\n');
-                       end
-                   end
-                else
-                    %the large size file existed and has enough bytes
-                    %since it is large size, it's definitely high res
-                    fprintf('!  Large version exists\n');
-                    current_file_valid = 1;
-                end
+%                 if(current_file_size < 5000) %if the file is less than 20k, or we got an error .gif instead
+%                    fprintf('X  Large version did not exist, trying original\n');
+%                    %try for the original
+%                    url = ['http://static.flickr.com/' server '/' id '_' secret '_o.jpg'];
+%                    cmd = ['/usr/local/Cellar/wget/1.16.3/bin/wget -t 3 -T 5 --quiet ' url ...
+%                              ' -O ' 'tmp/' id '_' secret '_' server '_' owner '.jpg' ];
+%                          
+%                    try
+%                        system(cmd);
+%                    catch
+%                        lasterr
+%                        fprintf('XX!! Error with wget.\n');
+%                    end
+%                     
+%                    current_file_info = dir(['tmp/' id '_' secret '_' server '_' owner '.jpg']);
+%                    if(isempty(current_file_info))
+%                        fprintf('XX!! could not find the second temporary file from this iteration \n')
+%                    else
+%                        current_file_size = current_file_info.bytes; 
+%                        
+%                        if(current_file_size < 5000) %if the file is less than 5k, or we got an error .gif instead
+%                            %neither the large nor the original existed
+%                            current_file_valid = 0;
+%                            fprintf('X  Original version does not exist\n');
+%                        else
+%                            %the large size did not exist, the original
+%                            %size did.  but it could be too small resolution.
+%                            %or too large, actually.
+%                            current_file_valid = 1;
+%                            fprintf('!  Original version exists\n');
+%                        end
+%                    end
+%                 else
+%                     %the large size file existed and has enough bytes
+%                     %since it is large size, it's definitely high res
+%                     fprintf('!  Large version exists\n');
+%                     current_file_valid = 1;
+%                 end
 
-            
+                % lets assume all images came back fine...
+                current_file_valid = 1;
+                
                 if(current_file_valid == 1)
                     % load the image, resize it, remove border, save it.
                     try
-                        current_image = imread( ['/tmp/' id '_' secret '_' server '_' owner '.jpg' ] );
+                        current_image = imread( ['tmp/' id '_' secret '_' server '_' owner '.jpg' ] );
                     catch
                         lasterr
                         fprintf('XX!! error loading temporary file, which should have been valid\n')
@@ -199,7 +204,6 @@ for i = 1:size(search_results,1)
                     if(size(current_image,3) == 3 && ... %make sure it's color
                        aspect_ratio <= 1.6 && ...  %we want to allow 800x533 images, barely
                        aspect_ratio >= .625 && ... %we don't want massive images, they'll run matlab out of memory
-                       min_dim_pixels >= 400 && ...
                        min_dim_pixels <= 1700)  %1700 min dimension largest allowable size.  This should almost NEVER happen, because if
                                                 %the image had been this big then a 'large' size should have existed
 
@@ -208,7 +212,7 @@ for i = 1:size(search_results,1)
 
                         min_dim_pixels = min( size(current_image,1) , size(current_image,2) );
                         
-                        if(min_dim_pixels >= 400)
+%                         if(min_dim_pixels >= 400)
                             %we finally have a completely valid image to save
                             
                             %resize the max dimension down to 1024
@@ -226,15 +230,15 @@ for i = 1:size(search_results,1)
                                 lasterr
                                 fprintf('XX!! error writing final image\n')
                             end
-                        else
-                            %we deleted too many pixels from the border
-                            fprintf('XX After border removal, the image is too small (%d pixels).\n', min_dim_pixels)
-                        end
+%                         else
+%                             %we deleted too many pixels from the border
+%                             fprintf('XX After border removal, the image is too small (%d pixels).\n', min_dim_pixels)
+%                         end
                     else
                         %print out the correct failure cases
-                        if(min_dim_pixels < 400)
-                            fprintf('XX Image is too small (%d pixels).  \n', min_dim_pixels)
-                        end
+%                         if(min_dim_pixels < 400)
+%                             fprintf('XX Image is too small (%d pixels).  \n', min_dim_pixels)
+%                         end
                         
                         if(aspect_ratio < .625 || aspect_ratio > 1.6)
                             fprintf('XX Aspect ratio is bad (%f).\n', aspect_ratio)
@@ -256,7 +260,7 @@ for i = 1:size(search_results,1)
             
             % delete the temporary file
             try
-                delete(['/tmp/' id '_' secret '_' server '_' owner '.jpg' ]);
+                delete(['tmp/' id '_' secret '_' server '_' owner '.jpg' ]);
             catch
                 lasterr
                 fprintf('XX!! failed deleting the temporary file\n')
