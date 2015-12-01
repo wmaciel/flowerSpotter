@@ -10,15 +10,23 @@
 #need to query west virginia before virginia
 
 #flower types wanted
-violet 
-lavender 
-lily 
-sunflower 
-rose 
-aster 
-daisy 
-orchid 
-bluebell 
+coltsfoot
+windflower
+tulip
+buttercup
+crocus
+snowdrop
+dandelion
+pansy
+iris
+cowslip
+lilyvalley
+tigerlily
+fritillary
+sunflower
+bluebell
+daisy
+daffodil
 
 #negative queries.  should these be restricted to tags only?
 -birthday
@@ -62,5 +70,12 @@ bluebell
 -live
 -baby
 -stilllife
+#lily valley is the name of a pony from My Little Pony...
+-doll
+-mlp
+-mylittlepony
+-bakery
+-blythe
+-tiger
 
 # need trailing comment for python to read the last real line
