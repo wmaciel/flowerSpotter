@@ -68,7 +68,7 @@ fapi = FlickrAPI(flickrAPIKey, flickrSecret)
 for current_tag in range(0, num_queries):
 
     # change this to the location where you want to put your output file
-    out_file = open('flickerData/' + pos_queries[current_tag] + '.txt', 'w')
+    out_file = open('flickrData/' + pos_queries[current_tag] + '.txt', 'w')
     ###########################################################################
 
     # form the query string.
@@ -84,6 +84,7 @@ for current_tag in range(0, num_queries):
     # timeskip = 3600 #one hour
     # timeskip = 2257 #for resuming previous query
 
+    # mintime = 1262304001 # 2010-01-01
     mintime = 1121832000 #from im2gps
     # mintime = 1167407788 # resume crash england
     # mintime = 1177828976 #resume crash japan
@@ -91,6 +92,7 @@ for current_tag in range(0, num_queries):
     # mintime = 1171416400  # resume crash WashingtonDC
     maxtime = mintime + timeskip
     endtime = 1192165200  # 10/12/2007, at the end of im2gps queries
+    #endtime = 1448944500 # 2015-11-30
 
     # this is the desired number of photos in each block
     desired_photos = 250
@@ -152,10 +154,10 @@ for current_tag in range(0, num_queries):
                 print 'Lower bound is ' + str(datetime.fromtimestamp(lower_bound))
                 print 'Upper bound is ' + str(datetime.fromtimestamp(upper_bound))
 
-                if (int(total_images) > 0):  # only if we're not in a degenerate case
-                    keep_going = keep_going - 1
+                if int(total_images) > 0:  # only if we're not in a degenerate case
+                    keep_going -= 1
                 else:
-                    upper_bound = upper_bound + timeskip;
+                    upper_bound += timeskip
 
             except KeyboardInterrupt:
                 print('Keyboard exception while querying for images, exiting\n')
@@ -227,9 +229,6 @@ for current_tag in range(0, num_queries):
                     raise
                 except:
                     print sys.exc_info()[0]
-                    # print type(inst)     # the exception instance
-                    # print inst.args      # arguments stored in .args
-                    # print inst           # __str__ allows args to printed directly
                     print ('Exception encountered while querying for images\n')
                 else:
 
